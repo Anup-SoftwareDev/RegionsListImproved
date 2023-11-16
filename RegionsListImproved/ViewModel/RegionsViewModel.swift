@@ -7,6 +7,7 @@
 
 import Foundation
 
+// Structure to store region data
 struct RegionsData {
     let name: String
     var isSelected: Bool
@@ -14,37 +15,46 @@ struct RegionsData {
 
 class RegionsViewModel {
     
+    // Arrays to store base and filtered region data
     var regionsBaseData: [RegionsData] = []
     var regionsFilteredLoadingData: [RegionsData] = []
     
-    func initializeRegionsData(){
-    regionsBaseData = []
+    // Resets and initializes the region data
+    func resetAllRegionsData() {
+        initializeRegionsData()
+        regionsFilteredLoadingData = regionsBaseData
+    }
+    
+    // Initializes the regions data with names and default selection status
+    func initializeRegionsData() {
+        regionsBaseData = []
         for regionName in regionsNames.sorted() {
-           let regionData = RegionsData(name: regionName, isSelected: false)
+            let regionData = RegionsData(name: regionName, isSelected: false)
             regionsBaseData.append(regionData)
         }
     }
     
-    func updateFilteredLoadingData(index: Int){
+    // Updates the selection status of a region in the filtered data
+    func updateFilteredLoadingData(index: Int) {
         let tempIsSelectedValue = regionsFilteredLoadingData[index].isSelected
-        //initializeRegionsData()
         for (indexOfRegions, _) in regionsFilteredLoadingData.enumerated() {
             if indexOfRegions == index {
                 regionsFilteredLoadingData[indexOfRegions].isSelected = !tempIsSelectedValue
-            } else{
+            } else {
                 regionsFilteredLoadingData[indexOfRegions].isSelected = false
             }
         }
     }
     
-    func updateRegionsBaseData(){
+    // Updates the base regions data to reflect changes in the filtered data
+    func updateRegionsBaseData() {
         initializeRegionsData()
         for regionsFilteredLoadingDatum in regionsFilteredLoadingData {
             let regionName = regionsFilteredLoadingDatum.name
             let isSelectedValue = regionsFilteredLoadingDatum.isSelected
             var iterationIndex = 0
             
-            repeat{
+            repeat {
                 if regionsBaseData[iterationIndex].name == regionName {
                     regionsBaseData[iterationIndex].isSelected = isSelectedValue
                 }
@@ -53,29 +63,29 @@ class RegionsViewModel {
         }
     }
     
-    func findSelectedRegion() -> (selectedRegionFound: Bool, selectedIndex:Int) {
+    // Finds the selected region in the base data
+    func findSelectedRegion() -> (selectedRegionFound: Bool, selectedIndex: Int) {
         var selectedIndex = 0
         var selectedRegionFound = false
         repeat {
-                // Check if we've found a selected item
-                if selectedIndex < regionsBaseData.count && regionsBaseData[selectedIndex].isSelected {
-                    selectedRegionFound = true
-                    break // Exit the loop
-                }
+            if selectedIndex < regionsBaseData.count && regionsBaseData[selectedIndex].isSelected {
+                selectedRegionFound = true
+                break
+            }
             selectedIndex += 1
-            } while selectedIndex < regionsBaseData.count
-       return (selectedRegionFound, selectedIndex)
+        } while selectedIndex < regionsBaseData.count
+        return (selectedRegionFound, selectedIndex)
     }
     
+    // Filters regions based on the search text
     func filterRegions(searchText: String) -> [RegionsData] {
         regionsFilteredLoadingData = regionsBaseData
-        if searchText.isEmpty{
+        if searchText.isEmpty {
             return regionsFilteredLoadingData
-        }else{
+        } else {
             return regionsFilteredLoadingData.filter { region in
                 region.name.lowercased().contains(searchText.lowercased())
             }
         }
     }
-
 }
